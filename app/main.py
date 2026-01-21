@@ -1,8 +1,23 @@
 import subprocess
+import sys
 import time
 import urllib.request
-import webview
 from pathlib import Path
+
+import webview
+
+
+def get_resource_path():
+    """
+    Get the base path for resources.
+    In PyInstaller bundle, use sys._MEIPASS, otherwise use project root.
+    """
+    if getattr(sys, 'frozen', False):
+        # Running as PyInstaller bundle
+        return Path(sys._MEIPASS)
+    else:
+        # Running as script
+        return Path(__file__).parent.parent
 
 
 def get_portal_url():
@@ -10,10 +25,9 @@ def get_portal_url():
     Get the URL to load the frontend application.
     Returns the built dist folder if it exists, otherwise starts dev server.
     """
-    # Get the project root directory (parent of app directory)
-    project_root = Path(__file__).parent.parent
-    portal_dir = project_root / "portal"
-    dist_dir = portal_dir / "dist"
+    # Get the base path (handles both bundled and development modes)
+    base_path = get_resource_path()
+    dist_dir = base_path / "portal" / "dist"
     index_html = dist_dir / "index.html"
 
     # Check if dist folder exists with index.html
@@ -21,7 +35,15 @@ def get_portal_url():
         # Use built static files - pywebview accepts file paths directly
         return str(index_html.absolute())
     else:
-        # Start Vite dev server
+        # Only start dev server in development mode (not in bundle)
+        if getattr(sys, 'frozen', False):
+            raise RuntimeError(
+                "Frontend files not found in bundle. "
+                "Please rebuild the application with 'python build.py'."
+            )
+        # Start Vite dev server (development mode only)
+        project_root = Path(__file__).parent.parent
+        portal_dir = project_root / "portal"
         return start_dev_server(portal_dir)
 
 
@@ -77,7 +99,7 @@ def main():
     url = get_portal_url()
 
     window = webview.create_window(
-        title='楚秦',
+        title='ChuQin',
         url=url,
         width=1200,
         height=800,
