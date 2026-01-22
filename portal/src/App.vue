@@ -4,6 +4,7 @@
   <URLTool v-else-if="currentView === 'url'" @back="handleBack" />
   <HEXTool v-else-if="currentView === 'hex'" @back="handleBack" />
   <TimestampTool v-else-if="currentView === 'timestamp'" @back="handleBack" />
+  <GitConfigTool v-else-if="currentView === 'git-config'" @back="handleBack" />
 </template>
 
 <script lang="ts">
@@ -13,6 +14,7 @@ import MD5Tool from './views/tools/MD5Tool.vue'
 import URLTool from './views/tools/URLTool.vue'
 import HEXTool from './views/tools/HEXTool.vue'
 import TimestampTool from './views/tools/TimestampTool.vue'
+import GitConfigTool from './views/tools/GitConfigTool.vue'
 
 export default defineComponent({
   name: 'App',
@@ -21,12 +23,14 @@ export default defineComponent({
     MD5Tool,
     URLTool,
     HEXTool,
-    TimestampTool
+    TimestampTool,
+    GitConfigTool
   },
   setup() {
     const currentView = ref<string>('dashboard')
 
     const handleNavigate = (view: string) => {
+      console.log('Navigating to view:', view)
       currentView.value = view
     }
 

@@ -86,12 +86,14 @@ export default defineComponent({
 
     // Handle tool card click
     const handleToolClick = (tool: Tool) => {
-      // Emit navigate event for pure frontend tools
-      const frontendTools = ['md5', 'url', 'hex', 'timestamp']
-      if (frontendTools.includes(tool.id)) {
+      console.log('Tool clicked:', tool.id, tool.title)
+      // Emit navigate event for available tools
+      const availableTools = ['md5', 'url', 'hex', 'timestamp', 'git-config']
+      if (availableTools.includes(tool.id)) {
+        console.log('Navigating to:', tool.id)
         emit('navigate', tool.id)
       } else {
-        console.log('Clicked tool:', tool.title)
+        console.log('Clicked tool:', tool.title, '- not available')
         // TODO: Navigate to other tool pages
       }
     }
