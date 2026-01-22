@@ -8,6 +8,10 @@ import os
 import sys
 from pathlib import Path
 
+# Import BUNDLE class for macOS app bundle creation
+if sys.platform == "darwin":
+    from PyInstaller.building.osx import BUNDLE
+
 # Get project root directory
 # SPECPATH is set by PyInstaller to the absolute path of this spec file
 spec_file_path = Path(SPECPATH).resolve()
@@ -59,25 +63,68 @@ a = Analysis(
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
-exe = EXE(
-    pyz,
-    a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    [],
-    name="ChuQin",
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    console=False,  # Set to True for debugging
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-    icon=None,  # Add icon path here if you have one: "path/to/icon.ico" or "path/to/icon.icns"
-)
+# Platform-specific executable configuration
+if sys.platform == "darwin":
+    # macOS: Use COLLECT and BUNDLE to create .app bundle
+    exe = EXE(
+        pyz,
+        a.scripts,
+        [],
+        exclude_binaries=True,
+        name="ChuQin",
+        debug=False,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        upx_exclude=[],
+        runtime_tmpdir=None,
+        console=False,  # Set to True for debugging
+        disable_windowed_traceback=False,
+        argv_emulation=False,
+        target_arch=None,
+        codesign_identity=None,
+        entitlements_file=None,
+        icon=None,  # Add icon path here if you have one: "path/to/icon.icns"
+    )
+    
+    coll = COLLECT(
+        exe,
+        a.binaries,
+        a.zipfiles,
+        a.datas,
+        strip=False,
+        upx=True,
+        upx_exclude=[],
+        name="ChuQin",
+    )
+    
+    app = BUNDLE(
+        coll,
+        name="ChuQin.app",
+        icon=None,  # Add icon path here if you have one: "path/to/icon.icns"
+        bundle_identifier=None,
+    )
+else:
+    # Windows and Linux: Use EXE to create executable
+    exe = EXE(
+        pyz,
+        a.scripts,
+        a.binaries,
+        a.zipfiles,
+        a.datas,
+        [],
+        name="ChuQin",
+        debug=False,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        upx_exclude=[],
+        runtime_tmpdir=None,
+        console=False,  # Set to True for debugging
+        disable_windowed_traceback=False,
+        argv_emulation=False,
+        target_arch=None,
+        codesign_identity=None,
+        entitlements_file=None,
+        icon=None,  # Add icon path here if you have one: "path/to/icon.ico" (Windows) or "path/to/icon.png" (Linux)
+    )
